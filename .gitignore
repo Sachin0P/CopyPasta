@@ -1,0 +1,13 @@
+# macOS
+.DS_Store
+
+# Go build output
+/CopyPasta
+*.exe
+*.test
+*.out
+
+# Environment and editor files
+.env
+.vscode/
+.idea/
