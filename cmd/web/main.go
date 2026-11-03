@@ -8,29 +8,31 @@ import (
 	"log/slog"
 	"net/http"
 	"os"
-
+	"github.com/Sachin0P/CopyPasta/internal/models"
 	_ "github.com/go-sql-driver/mysql"
 )
 
 type application struct {
 	logger *slog.Logger
+	snippets *models.SnippetModel
 }
 
 func main() {
-	logger := slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{AddSource: true}))
-	app := &application{
-		logger: logger,
-	}
-
 	addr := flag.String("addr", ":9999", "http port value")
 	dsn := flag.String("dsn", "web:2401@/snippetbox?parseTime=true", "Mysql data base")
 	flag.Parse()
+	logger := slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{AddSource: true}))
 	db, err := openDB(*dsn)
 	if err != nil {
 		logger.Error(err.Error())
 		os.Exit(1)
 	}
 	defer db.Close()
+	app := &application{
+		logger: logger,
+		snippets: &models.SnippetModel{DB:db},
+	}
+	
 	logger.Info("starting server", "post", *addr)
 	err = http.ListenAndServe(*addr, app.routes())
 	logger.Error(err.Error())
