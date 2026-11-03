@@ -3,6 +3,8 @@ package main
 import (
 	"errors"
 	"fmt"
+	// "html/template"
+
 	//"html/template"
 	"net/http"
 	"strconv"
@@ -16,9 +18,12 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		app.serverError(w, r, err)
 	}
-	for _, snippet := range snippets {
-		fmt.Fprintf(w, "%+v\n", snippet)
-	}
+	data := app.newTemplateData(r)
+	data.Snippets = snippets
+	// for _, snippet := range snippets {
+	// 	fmt.Fprintf(w, "%+v\n", snippet)
+	// }
+
 	// files := []string{
 	// 	"./assets/html/base.tmpl",
 	// 	"./assets/html/partials/nav.tmpl",
@@ -29,10 +34,17 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 	// 	app.serverError(w, r, err)
 	// 	return
 	// }
-	// err = ts.ExecuteTemplate(w, "base", nil)
+	// data = templateData{
+	// 	Snippets: snippets,
+	// }
+	// err = ts.ExecuteTemplate(w, "base", data)
 	// if err != nil {
 	// 	app.serverError(w, r, err)
 	// }
+	err = app.render(w, r, http.StatusOK, "home.tmpl", data)
+	if err != nil {
+		app.serverError(w, r, err)
+	}
 }
 
 func (app *application) snippetView(w http.ResponseWriter, r *http.Request) {
@@ -51,8 +63,30 @@ func (app *application) snippetView(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
+	// files := []string{
+	// 	"./assets/html/base.tmpl",
+	// 	"./assets/html/partials/nav.tmpl",
+	// 	"./assets/html/pages/view.tmpl",
+	// }
+	// ts, err := template.ParseFiles(files...)
+	// if err != nil {
+	// 	app.serverError(w, r, err)
 
-	fmt.Fprintf(w, "%+v", snippet)
+	// }
+	data := app.newTemplateData(r)
+	data.Snippet = snippet
+	// data := templateData{
+	// 	Snippet: snippet,
+	// }
+	// err = ts.ExecuteTemplate(w, "base", data)
+	// if err != nil {
+	// 	app.serverError(w, r, err)
+	// }
+	// fmt.Fprintf(w, "%+v", snippet)
+	err = app.render(w, r, http.StatusOK, "view.tmpl", data)
+	if err != nil {
+		app.serverError(w, r, err)
+	}
 }
 
 func (app *application) snippetCreate(w http.ResponseWriter, r *http.Request) {
